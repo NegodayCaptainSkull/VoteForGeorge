@@ -1,22 +1,153 @@
-.clicker {
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(45deg, #121212, #333);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  font-family: Arial, sans-serif;
-  button {
-    padding: 10px 20px;
-    margin: 10px;
-    font-size: 16px;
-    cursor: pointer;
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
   }
-  .upgrades {
-    margin-top: 20px;
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      &:hover {
-        background-color: #0056b3;
-      }
-    }
+  50% {
+    background-position: 100% 50%;
   }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.clicker-container {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.2);
+  width: 70%;
+  max-width: 800px;
+}
+
+h1 {
+  font-size: 3rem;
+  color: #00d2d2;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  text-shadow: 0 0 15px rgba(0, 210, 210, 0.8);
+}
+
+.coin {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background-color: #f0c14b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  background-image: url('../imgs/schoolcoin.jpeg');
+  background-size: cover; /* Изображение будет покрывать весь элемент */
+  background-position: center; /* Центрируем изображение */
+  background-repeat: no-repeat; /* Запрещаем повторение изображения */
+  transition: transform 0.2s ease;
+}
+
+.coins,
+.cps {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-top: 10px;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+}
+
+.click-button {
+  margin-top: 20px;
+  padding: 12px 24px;
+  font-size: 18px;
+  background-color: #00d2d2;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(0, 210, 210, 0.7);
+  transition: transform 0.2s, box-shadow 0.2s ease-in-out;
+}
+
+.click-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(0, 210, 210, 1);
+}
+
+.upgrades {
+  margin-top: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+}
+
+.upgrade-item {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  margin: 10px 0;
+  padding: 20px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.upgrade-item h3 {
+  font-size: 1.5rem;
+  color: #00d2d2;
+  text-transform: uppercase;
+}
+
+.upgrade-item p {
+  color: #aaa;
+  font-size: 1.1rem;
+  margin: 5px 0;
+}
+
+.upgrade-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #00d2d2;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: transform 0.2s, box-shadow 0.2s ease-in-out;
+}
+
+.upgrade-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0, 210, 210, 1);
+}
+
+button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.click-power {
+  margin-bottom: 30px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
 }
