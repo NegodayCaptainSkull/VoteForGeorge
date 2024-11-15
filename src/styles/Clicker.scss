@@ -60,7 +60,7 @@ h1 {
   background-image: url('../imgs/schoolcoin.jpeg');
   background-size: cover; /* Изображение будет покрывать весь элемент */
   background-position: center; /* Центрируем изображение */
-  background-repeat: no-repeat; /* Запрещаем повторение изображения */
+  background-repeat: no-repeat;
   transition: transform 0.2s ease;
 }
 
