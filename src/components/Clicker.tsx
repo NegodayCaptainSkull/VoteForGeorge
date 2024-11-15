@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './Clicker.scss';
+import '../styles/Clicker.scss';
 
 const Clicker: React.FC = () => {
   const [coins, setCoins] = useState(0);
