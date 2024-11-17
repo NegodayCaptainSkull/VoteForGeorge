@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Clicker.scss';
-import { ref, update, onValue } from 'firebase/database';
 import { db } from '../firebase';
 
 interface Upgrade {
@@ -32,7 +31,7 @@ const upgradesData: Upgrade[] = [
 ];
 
 const Clicker: React.FC<ClickerProps> = ({ userId }) => {
-  const userRef = ref(db, `users/${userId}`);
+  const userRef = db.ref(`users/${userId}`);
 
   const [coins, setCoins] = useState(0);
   const [cps, setCps] = useState(0); // Монеты в секунду
@@ -43,9 +42,12 @@ const Clicker: React.FC<ClickerProps> = ({ userId }) => {
     cost: 50,
   });
 
+  // Ссылка для хранения таймера
+  const saveDataTimer = useRef<NodeJS.Timeout | null>(null);
+
   // Загрузка данных пользователя из Firebase
   useEffect(() => {
-    onValue(userRef, (snapshot) => {
+    userRef.once('value').then((snapshot) => {
       const data = snapshot.val();
       if (data) {
         setCoins(data.coins || 0);
@@ -57,23 +59,26 @@ const Clicker: React.FC<ClickerProps> = ({ userId }) => {
     });
   }, [userRef]);
 
-
   // Сохраняем данные каждые 5 секунд
   useEffect(() => {
-    const interval = setInterval(() => {
-      const userData = {
-        coins,
-        cps,
-        upgrades,
-        coinsPerClick,
-        clickPowerUpgrades,
-      };
-  
-      // Используем update, чтобы обновить только изменённые поля
-      update(userRef, userData);
-    }, 5000);
+    if (!saveDataTimer.current) {
+      saveDataTimer.current = setInterval(() => {
+        userRef.set({
+          coins,
+          cps,
+          upgrades,
+          coinsPerClick,
+          clickPowerUpgrades,
+        });
+      }, 5000);
+    }
 
-    return () => clearInterval(interval); // Очистка интервала при размонтировании
+    return () => {
+      if (saveDataTimer.current) {
+        clearInterval(saveDataTimer.current);
+        saveDataTimer.current = null;
+      }
+    };
   }, [coins, cps, upgrades, coinsPerClick, clickPowerUpgrades, userRef]);
 
   // Увеличиваем монеты в зависимости от CPS каждую секунду
