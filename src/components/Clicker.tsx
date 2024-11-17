@@ -68,13 +68,13 @@ const Clicker = () => {
       const newUpgrades = [...upgrades];
       newUpgrades[index] = { ...upgrade, count: upgrade.count + 1 };
       setUpgrades(newUpgrades);
-      setCps(cps + upgrade.cps); // Добавляем к CPS
+      setCps(cps + upgrade.cps);
     }
   };
 
   return (
     <div className="clicker-container">
-      <h1>Школьный Кликер</h1>
+      <h1>School Coin</h1>
       <p className="coins">Монеты: {coins.toFixed(1)}</p>
       <p className="cps">Монеты в секунду (CPS): {cps.toFixed(1)}</p>
       <div
