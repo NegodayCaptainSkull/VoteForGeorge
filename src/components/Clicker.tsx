@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Clicker.scss';
+import { ref, update, onValue } from 'firebase/database';
 import { db } from '../firebase';
 
 interface Upgrade {
@@ -31,7 +32,7 @@ const upgradesData: Upgrade[] = [
 ];
 
 const Clicker: React.FC<ClickerProps> = ({ userId }) => {
-  const userRef = db.ref(`users/${userId}`);
+  const userRef = useRef(ref(db, `users/${userId}`));
 
   const [coins, setCoins] = useState(0);
   const [cps, setCps] = useState(0); // Монеты в секунду
@@ -42,35 +43,54 @@ const Clicker: React.FC<ClickerProps> = ({ userId }) => {
     cost: 50,
   });
 
-  // Ссылка для хранения таймера
   const saveDataTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Загрузка данных пользователя из Firebase
   useEffect(() => {
-    userRef.once('value').then((snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setCoins(data.coins || 0);
-        setCps(data.cps || 0);
-        setUpgrades(data.upgrades || upgradesData);
-        setCoinsPerClick(data.coinsPerClick || 1);
-        setClickPowerUpgrades(data.clickPowerUpgrades || { level: 1, cost: 50 });
-      }
-    });
-  }, [userRef]);
+    if (userId) {
+      const unsubscribe = onValue(userRef.current, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setCoins(data.coins || 0);
+          setCps(data.cps || 0);
+          setUpgrades(data.upgrades || upgradesData);
+          setCoinsPerClick(data.coinsPerClick || 1);
+          setClickPowerUpgrades(data.clickPowerUpgrades || { level: 1, cost: 50 });
+        }
+      });
+  
+      return () => unsubscribe(); // Очистка подписки на события
+    }
+  }, [userId]);  // Зависимость от userId
+  
 
-  // Сохраняем данные каждые 5 секунд
+  // Используем useRef для актуальных данных
+  const coinsRef = useRef(coins);
+  const cpsRef = useRef(cps);
+  const upgradesRef = useRef(upgrades);
+  const coinsPerClickRef = useRef(coinsPerClick);
+  const clickPowerUpgradesRef = useRef(clickPowerUpgrades);
+
+  useEffect(() => {
+    coinsRef.current = coins;
+    cpsRef.current = cps;
+    upgradesRef.current = upgrades;
+    coinsPerClickRef.current = coinsPerClick;
+    clickPowerUpgradesRef.current = clickPowerUpgrades;
+  }, [coins, cps, upgrades, coinsPerClick, clickPowerUpgrades]);
+
   useEffect(() => {
     if (!saveDataTimer.current) {
       saveDataTimer.current = setInterval(() => {
-        userRef.set({
-          coins,
-          cps,
-          upgrades,
-          coinsPerClick,
-          clickPowerUpgrades,
-        });
-      }, 5000);
+        const userData = {
+          coins: coinsRef.current,
+          cps: cpsRef.current,
+          upgrades: upgradesRef.current,
+          coinsPerClick: coinsPerClickRef.current,
+          clickPowerUpgrades: clickPowerUpgradesRef.current,
+        };
+        update(userRef.current, userData);
+      }, 10000);
     }
 
     return () => {
@@ -79,13 +99,17 @@ const Clicker: React.FC<ClickerProps> = ({ userId }) => {
         saveDataTimer.current = null;
       }
     };
-  }, [coins, cps, upgrades, coinsPerClick, clickPowerUpgrades, userRef]);
+  }, [userRef]); // Здесь только userRef
 
   // Увеличиваем монеты в зависимости от CPS каждую секунду
   useEffect(() => {
     const interval = setInterval(() => {
-      setCoins((prevCoins) => prevCoins + cps);
+      setCoins((prevCoins) => {
+        const newCoins = prevCoins + cps;
+        return Math.round(newCoins * 10) / 10; // Округляем до десятых
+      });
     }, 1000);
+    
     return () => clearInterval(interval);
   }, [cps]);
 
