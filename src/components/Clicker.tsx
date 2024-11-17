@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Clicker.scss';
-import { ref, update, onValue, set } from 'firebase/database';
+import { ref, update, onValue } from 'firebase/database';
 import { db } from '../firebase';
 
 interface Upgrade {
@@ -57,16 +57,24 @@ const Clicker: React.FC<ClickerProps> = ({ userId }) => {
     });
   }, [userRef]);
 
+
   // Сохраняем данные каждые 5 секунд
-  const saveData = () => {
-    set(userRef, {
-      coins,
-      cps,
-      upgrades,
-      coinsPerClick,
-      clickPowerUpgrades,
-    });
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const userData = {
+        coins,
+        cps,
+        upgrades,
+        coinsPerClick,
+        clickPowerUpgrades,
+      };
+  
+      // Используем update, чтобы обновить только изменённые поля
+      update(userRef, userData);
+    }, 5000);
+
+    return () => clearInterval(interval); // Очистка интервала при размонтировании
+  }, [coins, cps, upgrades, coinsPerClick, clickPowerUpgrades, userRef]);
 
   // Увеличиваем монеты в зависимости от CPS каждую секунду
   useEffect(() => {
@@ -79,7 +87,6 @@ const Clicker: React.FC<ClickerProps> = ({ userId }) => {
   // Обработка клика для получения монет
   const handleClick = () => {
     setCoins(coins + coinsPerClick);
-    saveData();
   };
 
   const buyClickPowerUpgrade = () => {
