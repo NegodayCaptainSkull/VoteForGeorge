@@ -1,9 +1,13 @@
 import React from 'react';
 
-function Account (user: string) {
+interface AccountProps {
+  name: string; // Указываем, что name всегда будет строкой
+}
+
+const Account: React.FC<AccountProps> = ({ name }) => {
   return (
     <div className='account'>
-      <h2>{user}</h2>
+      <h2>{name}</h2>
     </div>
   );
 };
