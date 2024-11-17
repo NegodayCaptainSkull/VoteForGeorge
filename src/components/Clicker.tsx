@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Clicker.scss';
-import { ref, set, onValue } from 'firebase/database';
+import { ref, update, onValue } from 'firebase/database';
 import { db } from '../firebase';
 
 interface Upgrade {
@@ -31,8 +31,8 @@ const upgradesData: Upgrade[] = [
   { name: 'Министр образования', baseCost: 330000000, costMultiplier: 1.15, cps: 44000, count: 0 },
 ];
 
-const Clicker: React.FC<ClickerProps> = ({userId}) => {
-  const userRef = ref(db, `users/${userId}`)
+const Clicker: React.FC<ClickerProps> = ({ userId }) => {
+  const userRef = ref(db, `users/${userId}`);
 
   const [coins, setCoins] = useState(0);
   const [cps, setCps] = useState(0); // Монеты в секунду
@@ -43,33 +43,37 @@ const Clicker: React.FC<ClickerProps> = ({userId}) => {
     cost: 50,
   });
 
-    // Загрузка данных пользователя из Firebase
-    useEffect(() => {
-      onValue(userRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setCoins(data.coins || 0);
-          setCps(data.cps || 0);
-          setUpgrades(data.upgrades || upgradesData);
-          setCoinsPerClick(data.coinsPerClick || 1);
-          setClickPowerUpgrades(data.clickPowerUpgrades || { level: 1, cost: 50 });
-        }
-      });
-    }, [userRef]);
+  // Загрузка данных пользователя из Firebase
+  useEffect(() => {
+    onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setCoins(data.coins || 0);
+        setCps(data.cps || 0);
+        setUpgrades(data.upgrades || upgradesData);
+        setCoinsPerClick(data.coinsPerClick || 1);
+        setClickPowerUpgrades(data.clickPowerUpgrades || { level: 1, cost: 50 });
+      }
+    });
+  }, [userRef]);
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-        set(userRef, {
-          coins,
-          cps,
-          upgrades,
-          coinsPerClick,
-          clickPowerUpgrades,
-        });
-      }, 5000); // Сохраняем каждые 5 секунд
-    
-      return () => clearInterval(interval); // Очищаем таймер при размонтировании компонента
-    }, [coins, cps, upgrades, coinsPerClick, clickPowerUpgrades, userRef]);
+  // Сохраняем данные каждые 5 секунд
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const userData = {
+        coins,
+        cps,
+        upgrades,
+        coinsPerClick,
+        clickPowerUpgrades,
+      };
+  
+      // Используем update, чтобы обновить только изменённые поля
+      update(userRef, userData);
+    }, 5000);
+
+    return () => clearInterval(interval); // Очистка интервала при размонтировании
+  }, [coins, cps, upgrades, coinsPerClick, clickPowerUpgrades, userRef]);
 
   // Увеличиваем монеты в зависимости от CPS каждую секунду
   useEffect(() => {
