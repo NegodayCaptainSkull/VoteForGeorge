@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Clicker.scss';
 import { ref, update, onValue } from 'firebase/database';
 import { db } from '../firebase';
@@ -33,6 +33,7 @@ const upgradesData: Upgrade[] = [
 
 const Clicker: React.FC<ClickerProps> = ({ userId }) => {
   const userRef = ref(db, `users/${userId}`);
+  const saveDataTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [coins, setCoins] = useState(0);
   const [cps, setCps] = useState(0); // Монеты в секунду
@@ -57,23 +58,18 @@ const Clicker: React.FC<ClickerProps> = ({ userId }) => {
     });
   }, [userRef]);
 
-  // Сохраняем данные каждые 5 секунд
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const userData = {
-        coins,
-        cps,
-        upgrades,
-        coinsPerClick,
-        clickPowerUpgrades,
-      };
-  
-      // Используем update, чтобы обновить только изменённые поля
-      update(userRef, userData);
-    }, 5000);
+  // Функция для сохранения данных в Firebase
+  const saveData = () => {
+    const userData = {
+      coins,
+      cps,
+      upgrades,
+      coinsPerClick,
+      clickPowerUpgrades,
+    };
 
-    return () => clearInterval(interval); // Очистка интервала при размонтировании
-  }, [coins, cps, upgrades, coinsPerClick, clickPowerUpgrades, userRef]);
+    update(userRef, userData);
+  };
 
   // Увеличиваем монеты в зависимости от CPS каждую секунду
   useEffect(() => {
@@ -88,6 +84,7 @@ const Clicker: React.FC<ClickerProps> = ({ userId }) => {
     setCoins(coins + coinsPerClick);
   };
 
+  // Покупка улучшений
   const buyClickPowerUpgrade = () => {
     if (coins >= clickPowerUpgrades.cost) {
       setCoins(coins - clickPowerUpgrades.cost); // Вычитаем стоимость
@@ -112,17 +109,36 @@ const Clicker: React.FC<ClickerProps> = ({ userId }) => {
     }
   };
 
+  // Сохранение данных по таймеру
+  useEffect(() => {
+    if (saveDataTimeoutRef.current) {
+      clearTimeout(saveDataTimeoutRef.current); // Очищаем старый таймер, если он существует
+    }
+
+    // Сохраняем данные после 5 секунд
+    saveDataTimeoutRef.current = setTimeout(() => {
+      saveData();
+    }, 5000);
+
+    // Очищаем таймер при размонтировании компонента
+    return () => {
+      if (saveDataTimeoutRef.current) {
+        clearTimeout(saveDataTimeoutRef.current);
+      }
+    };
+  }, [coins, cps, upgrades, coinsPerClick, clickPowerUpgrades, saveData]); // Данные сохраняются только при изменении этих состояний
+
   return (
     <div className="clicker-container">
       <h1>School Coin</h1>
       <p className="coins">Монеты: {coins.toFixed(1)}</p>
       <p className="cps">Монеты в секунду (CPS): {cps.toFixed(1)}</p>
       <div
-        className='coin'
+        className="coin"
         onClick={handleClick}
         onMouseDown={(e) => e.preventDefault()} // Для предотвращения выделения текста при нажатии
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.1)"}
+        onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
       >
       </div>
       <div className="upgrades">
