@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Clicker.scss';
+import { ref, set, onValue } from 'firebase/database';
+import { db } from '../firebase';
 
 interface Upgrade {
   name: string;
@@ -14,6 +16,10 @@ interface ClickUpgrade {
   cost: number;
 }
 
+interface ClickerProps {
+  userId: string | null; // Указываем, что name всегда будет строкой
+}
+
 const upgradesData: Upgrade[] = [
   { name: 'Учебник', baseCost: 15, costMultiplier: 1.15, cps: 0.1, count: 0 },
   { name: 'Учитель', baseCost: 100, costMultiplier: 1.15, cps: 1, count: 0 },
@@ -25,7 +31,9 @@ const upgradesData: Upgrade[] = [
   { name: 'Министр образования', baseCost: 330000000, costMultiplier: 1.15, cps: 44000, count: 0 },
 ];
 
-const Clicker = () => {
+const Clicker: React.FC<ClickerProps> = ({userId}) => {
+  const userRef = ref(db, `users/${userId}`)
+
   const [coins, setCoins] = useState(0);
   const [cps, setCps] = useState(0); // Монеты в секунду
   const [upgrades, setUpgrades] = useState<Upgrade[]>(upgradesData);
@@ -34,6 +42,34 @@ const Clicker = () => {
     level: 1,
     cost: 50,
   });
+
+    // Загрузка данных пользователя из Firebase
+    useEffect(() => {
+      onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setCoins(data.coins || 0);
+          setCps(data.cps || 0);
+          setUpgrades(data.upgrades || upgradesData);
+          setCoinsPerClick(data.coinsPerClick || 1);
+          setClickPowerUpgrades(data.clickPowerUpgrades || { level: 1, cost: 50 });
+        }
+      });
+    }, [userRef]);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        set(userRef, {
+          coins,
+          cps,
+          upgrades,
+          coinsPerClick,
+          clickPowerUpgrades,
+        });
+      }, 5000); // Сохраняем каждые 5 секунд
+    
+      return () => clearInterval(interval); // Очищаем таймер при размонтировании компонента
+    }, [coins, cps, upgrades, coinsPerClick, clickPowerUpgrades, userRef]);
 
   // Увеличиваем монеты в зависимости от CPS каждую секунду
   useEffect(() => {
