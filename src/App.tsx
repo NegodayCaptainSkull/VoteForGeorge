@@ -71,7 +71,7 @@ const App: React.FC = () => {
           setClickPowerUpgrades(data.clickPowerUpgrades || { level: 1, cost: 50 });
         }
       });
-
+      console.log("rendered")
       return () => unsubscribe();
     }
   }, [userId]);
@@ -176,7 +176,7 @@ const App: React.FC = () => {
               onPurchaseUpgrade={purchaseUpgrade}
               />
             )}
-          {currentPage === 'move' && <Move userSchoolCoins={coins} userRebirthCoins={rebirthCoins} onMove={rebirth} />}
+          {currentPage === 'move' && <Move userSchoolCoins={coins} userRebirthCoins={rebirthCoins} schoolCoinsMultiplyer={schoolCoinsMultiplyer} onMove={rebirth} />}
           {currentPage === 'leaderboard' && <Leaderboard userId={userId} />}
         </div>
       {/* Здесь добавьте другие страницы */}

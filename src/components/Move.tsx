@@ -4,14 +4,16 @@ import "../styles/Move.scss"; // Убедитесь, что у вас есть �
 interface MoveProps {
   userSchoolCoins: number; // количество schoolCoin у пользователя
   userRebirthCoins: number; // количество rebirth монет у пользователя
+  schoolCoinsMultiplyer: number;
   onMove: (rebirthCoins: number) => void; // функция для обработки переезда
 }
 
-const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, onMove }) => {
+const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, schoolCoinsMultiplyer, onMove }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false); // Статус для открытия диалога
   const [isMoving, setIsMoving] = useState(false); // Статус, когда пользователь уже в процессе переезда
+  const rebirthsCount = Math.log2(schoolCoinsMultiplyer);
 
-  const schoolCoinPrice = 1000000; // Стоимость переезда в schoolCoin
+  const rebirthPrice = Math.pow(1000000, rebirthsCount + 1); // Стоимость переезда в schoolCoin
   const rebirthCoinRate = 10000; // Курс обмена schoolCoin на rebirth монеты
 
   // Функция для открытия диалога
@@ -21,14 +23,13 @@ const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, onMove }
 
   // Функция для выполнения переезда
   const handleMove = () => {
-    if (userSchoolCoins >= schoolCoinPrice) {
+    if (userSchoolCoins >= rebirthPrice) {
       // Рассчитываем количество rebirth монет
       const rebirthCoinsGained = Math.floor(userSchoolCoins / rebirthCoinRate);
       onMove(rebirthCoinsGained); // Вызываем функцию для обновления данных о rebirth монетах
       setIsMoving(true);
       setIsDialogOpen(false); // Закрываем диалог после переезда
     } else {
-      alert("У вас недостаточно schoolCoin для переезда.");
     }
   };
 
@@ -36,6 +37,12 @@ const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, onMove }
     <div className="move-container">
       <h2>Переезд</h2>
       
+      <div className="rebirth-count">
+        <p>Количество переездов: {rebirthsCount}</p>
+      </div>
+      <div className="rebirth-multiplyer">
+        <p>Множитель School Coins: {schoolCoinsMultiplyer}</p>
+      </div>
       <div className="rebirth-coins">
         <p>Количество rebirth монет: {userRebirthCoins}</p>
       </div>
@@ -51,13 +58,14 @@ const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, onMove }
           <div className="dialog-content">
             <h3>Ты переезжаешь в новую школу</h3>
             <p>
-              Множитель <strong>schoolCoins</strong> становится в два раза больше,
+              Множитель <strong>School Coins</strong> становится в два раза больше,
               но ты теряешь все свои накопления и все улучшения.
             </p>
             <p>
-              Стоимость переезда: <strong>{schoolCoinPrice} schoolCoin</strong>
+              Стоимость переезда: <strong>{rebirthPrice} School Coin</strong>
             </p>
-            <button onClick={handleMove} className="move-dialog-button">
+            <p>За каждые 10 тысяч School Coins ты получишь 1 rebirth монету</p>
+            <button onClick={handleMove} className="move-dialog-button" disabled={userSchoolCoins < rebirthPrice}>
               Переехать
             </button>
             <button onClick={() => setIsDialogOpen(false)} className="close-dialog-button">
