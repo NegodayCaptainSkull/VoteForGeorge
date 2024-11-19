@@ -1,0 +1,79 @@
+import React, { useState, useEffect } from "react";
+import "../styles/Leaderbord.scss";
+import { ref, onValue } from "firebase/database";
+import { db } from "../firebase";
+
+interface User {
+  id: string;
+  name: string;
+  coins: number;
+}
+
+interface LeaderboardProps {
+  userId: string | null; // ID текущего пользователя
+}
+
+const Leaderboard: React.FC<LeaderboardProps> = ({ userId }) => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const usersRef = ref(db, "users");
+
+    // Подписываемся на обновления данных пользователей
+    onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const usersArray: User[] = Object.entries(data).map(([id, userData]: any) => ({
+          id,
+          name: userData.name || "Безымянный",
+          coins: userData.coins || 0,
+        }));
+
+        // Сортируем пользователей по количеству коинов (по убыванию)
+        const sortedUsers = usersArray.sort((a, b) => b.coins - a.coins);
+
+        setUsers(sortedUsers);
+
+        // Находим текущего пользователя
+        if (userId) {
+          const foundUser = sortedUsers.find((user) => user.id === userId) || null;
+          setCurrentUser(foundUser);
+        }
+      }
+    });
+  }, [userId]);
+
+  return (
+    <div className="leaderboard-container">
+      <h1>Таблица лидеров</h1>
+      <div className="leaderboard-list">
+        {users.slice(0, 10).map((user, index) => (
+          <div key={user.id}
+          className={`leaderboard-item ${
+            user.id === userId ? "current-user" : ""
+          }`}>
+            <span className={`leaderboard-rank ${
+            user.id === userId ? "current-user-rank" : ""
+          }`}>{index + 1}</span>
+            <span className={`leaderboard-name ${
+            user.id === userId ? "current-user-name" : ""
+          }`}>{user.name}</span>
+            <span className={`leaderboard-coins ${
+            user.id === userId ? "current-user-coins" : ""
+          }`}>{user.coins.toFixed(1)} монет</span>
+          </div>
+        ))}
+        {currentUser && !users.slice(0, 10).includes(currentUser) && (
+          <div className="leaderboard-item current-user">
+            <span className="leaderboard-rank current-user-rank">...</span>
+            <span className="leaderboard-name current-user-name">{currentUser.name}</span>
+            <span className="leaderboard-coins current-user-coins">{currentUser.coins.toFixed(1)} монет</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Leaderboard;

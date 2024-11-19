@@ -18,8 +18,17 @@ body {
 }
 
 .app {
+  display: flex;
+  flex-direction: column;
   background: rgba(0, 0, 0, 0.6);
   border-radius: 20px;
   box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.2);
   width: 100vw;
+  height: 100vh;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto; // Если содержимое превышает высоту, добавляется прокрутка
+  padding-bottom: 60px; // Для учета высоты навигации
 }

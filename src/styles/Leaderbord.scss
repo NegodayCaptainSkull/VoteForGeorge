@@ -1,0 +1,62 @@
+.leaderboard-container {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  text-align: left;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #00d2d2;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.leaderboard-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 15px 20px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.leaderboard-rank {
+  font-size: 1.2rem;
+  color: #00d2d2;
+  font-weight: bold;
+  width: 40px;
+  text-align: center;
+}
+
+.leaderboard-name {
+  flex: 1;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.leaderboard-coins {
+  font-size: 1.2rem;
+  color: #aaa;
+  text-align: right;
+}
+
+.leaderboard-item.current-user {
+  background-color: #00d2d2; // выделение текущего пользователя
+  font-weight: bold;
+  color: #000;
+  border: 2px solid #000;
+}
+
+.current-user-rank, .current-user-name, .current-user-coins {
+  color: #fff;
+}

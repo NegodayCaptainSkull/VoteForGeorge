@@ -1,0 +1,111 @@
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.move-container {
+  margin-top: 30px;
+  padding: 20px;
+  border-radius: 15px;
+}
+
+.rebirth-coins {
+  font-size: 1.2rem;
+  color: #fff;
+  margin-top: 10px;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+}
+
+.move-button-container {
+  margin-top: 20px;
+}
+
+.move-button {
+  padding: 12px 24px;
+  font-size: 18px;
+  background-color: #00d2d2;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(0, 210, 210, 0.7);
+  transition: transform 0.2s, box-shadow 0.2s ease-in-out;
+}
+
+.move-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(0, 210, 210, 1);
+}
+
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dialog-content {
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 400px;
+}
+
+.dialog-content h3 {
+  color: #00d2d2;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+.dialog-content p {
+  color: #aaa;
+  font-size: 1.1rem;
+  margin: 10px 0;
+}
+
+.move-dialog-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #00d2d2;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: transform 0.2s, box-shadow 0.2s ease-in-out;
+}
+
+.move-dialog-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0, 210, 210, 1);
+}
+
+.close-dialog-button {
+  background-color: #ccc;
+  color: black;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.moving-status {
+  margin-top: 20px;
+  font-size: 1.5rem;
+  color: #fff;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+}
