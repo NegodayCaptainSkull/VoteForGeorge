@@ -37,7 +37,16 @@ const App: React.FC = () => {
     { name: 'Руководитель образования', baseCost: 20000000, costMultiplier: 1.15, cps: 7800, count: 0 },
     { name: 'Министр образования', baseCost: 330000000, costMultiplier: 1.15, cps: 44000, count: 0 },
   ]);
+  const [rebirthUpgrades, setRebirthUpgrades] = useState([
+    {name: "Энергетический напиток", description: "x2 монет за клик на 10 минут", price: 20},
+    {name: "Суперускорение", description: "x2 монет в секунду на 10 минут", price: 20},
+    {name: "Машина времени", description: "Симулирует 10 минут игры", price: 100},
+    {name: "Быстрый старт", description: "Начинайте с 1000 School Coins после переезда", price: 30, count: 0 },
+  ])
   const [clickPowerUpgrades, setClickPowerUpgrades] = useState({ level: 1, cost: 50 });
+
+  const [energyDrinkActive, setEnergyDrinkActive] = useState(false);
+  const [superBoostActive, setSuperBoostActive] = useState(false);
 
   // Ссылки на состояния
   const nameRef = useRef(name);
@@ -93,17 +102,35 @@ const App: React.FC = () => {
     return () => clearInterval(saveData);
   }, []);
 
+  useEffect(() => {
+    if (energyDrinkActive) {
+      const timer = setTimeout(() => setEnergyDrinkActive(false), 10 * 60 * 1000); // 10 минут
+      return () => clearTimeout(timer); // Очистить таймер при размонтировании
+    }
+  }, [energyDrinkActive]);
+  
+  useEffect(() => {
+    if (superBoostActive) {
+      const timer = setTimeout(() => setSuperBoostActive(false), 10 * 60 * 1000); // 10 минут
+      return () => clearTimeout(timer);
+    }
+  }, [superBoostActive]);
+
   // Увеличение монет от CPS каждую секунду
   useEffect(() => {
     const interval = setInterval(() => {
-      setCoins((prevCoins) => Math.round((prevCoins + cps * schoolCoinsMultiplyer) * 10) / 10);
+      const multiplier = superBoostActive ? 2 : 1; // Если активен суперускоритель, умножаем на 2
+      setCoins((prevCoins) => Math.round((prevCoins + cps * schoolCoinsMultiplyer * multiplier) * 10) / 10);
     }, 1000);
-
+  
     return () => clearInterval(interval);
-  }, [cps, schoolCoinsMultiplyer]);
+  }, [cps, schoolCoinsMultiplyer, superBoostActive]);
 
   // Обработчики
-  const handleClick = () => setCoins(coins + coinsPerClick * schoolCoinsMultiplyer);
+  const handleClick = () => {
+    const multiplier = energyDrinkActive ? 2 : 1; // Если активен энергетик, умножаем на 2
+    setCoins(coins + coinsPerClick * schoolCoinsMultiplyer * multiplier);
+  };
 
   const buyClickPowerUpgrade = () => {
     if (coins >= clickPowerUpgrades.cost) {
@@ -137,7 +164,7 @@ const App: React.FC = () => {
     setCoinsPerClick(1);
     setClickPowerUpgrades({ level: 1, cost: 50 });
     update(userRef.current, {
-      coins: 0,
+      coins: 1000 * rebirthUpgrades[3].count!,
       cps: 0,
       upgrades: [
         { name: 'Учебник', baseCost: 15, costMultiplier: 1.15, cps: 0.1, count: 0 },
@@ -160,6 +187,28 @@ const App: React.FC = () => {
     )
   }
 
+  const purchaseRebirthUpgrade = (index: number) => {
+    const rebirthUpgrade = rebirthUpgrades[index];
+    const cost = rebirthUpgrade.price;
+    if (rebirthCoins >= cost) {
+      setRebirthCoins(rebirthCoins - cost);
+      if (index === 0) {
+        // Энергетический напиток
+        setEnergyDrinkActive(true);
+      } else if (index === 1) {
+        // Суперускорение
+        setSuperBoostActive(true);
+      } else if (index === 2) {
+        // Машина времени
+        setCoins(coins + cps * 600);
+      } else {
+        const newRebirthUpgrades = [...rebirthUpgrades];
+        newRebirthUpgrades[index].count!++;
+        setRebirthUpgrades(newRebirthUpgrades);
+      }
+    }
+  }
+
   return (
     <div className='app'>
         <Account name={name}/>
@@ -176,7 +225,7 @@ const App: React.FC = () => {
               onPurchaseUpgrade={purchaseUpgrade}
               />
             )}
-          {currentPage === 'move' && <Move userSchoolCoins={coins} userRebirthCoins={rebirthCoins} schoolCoinsMultiplyer={schoolCoinsMultiplyer} onMove={rebirth} />}
+          {currentPage === 'move' && <Move userSchoolCoins={coins} userRebirthCoins={rebirthCoins} schoolCoinsMultiplyer={schoolCoinsMultiplyer} rebirthUpgrades={rebirthUpgrades} isEnergyDrinkActive={energyDrinkActive} isSuperBoostActive={superBoostActive} onMove={rebirth} handleBuyItem={purchaseRebirthUpgrade} />}
           {currentPage === 'leaderboard' && <Leaderboard userId={userId} />}
         </div>
       {/* Здесь добавьте другие страницы */}
