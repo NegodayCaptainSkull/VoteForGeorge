@@ -48,6 +48,9 @@ const App: React.FC = () => {
   const [energyDrinkActive, setEnergyDrinkActive] = useState(false);
   const [superBoostActive, setSuperBoostActive] = useState(false);
 
+  const [energyDrinkTimeLeft, setEnergyDrinkTimeLeft] = useState<number>(0);
+  const [superBoostTimeLeft, setSuperBoostTimeLeft] = useState<number>(0);
+
   // Ссылки на состояния
   const nameRef = useRef(name);
   const userNameRef = useRef(username);
@@ -73,17 +76,57 @@ const App: React.FC = () => {
         if (data) {
           setCoins(data.coins || 0);
           setRebirthCoins(data.rebirthCoins || 0);
-          setSchoolCoinsMultiplyer(data.schoolCoinsMultiplyer || 1)
+          setSchoolCoinsMultiplyer(data.schoolCoinsMultiplyer || 1);
           setCps(data.cps || 0);
           setUpgrades(data.upgrades || upgradesRef.current);
           setCoinsPerClick(data.coinsPerClick || 1);
           setClickPowerUpgrades(data.clickPowerUpgrades || { level: 1, cost: 50 });
+          setRebirthUpgrades(data.rebirthUpgrades || 
+            [
+              {name: "Энергетический напиток", description: "x2 монет за клик на 10 минут", price: 20},
+              {name: "Суперускорение", description: "x2 монет в секунду на 10 минут", price: 20},
+              {name: "Машина времени", description: "Симулирует 10 минут игры", price: 100},
+              {name: "Быстрый старт", description: "Начинайте с 1000 School Coins после переезда", price: 30, count: 0 },
+            ]
+          )
+  
+          // Расчёт оффлайн-фарма
+          const now = Date.now();
+          if (data.energyDrinkEndTime && now < data.energyDrinkEndTime) {
+            const timeLeft = Math.max(data.energyDrinkEndTime - now, 0);
+            setEnergyDrinkTimeLeft(timeLeft);
+            setEnergyDrinkActive(true);
+            setTimeout(() => setEnergyDrinkActive(false), data.energyDrinkEndTime - now);
+          }
+          if (data.superBoostEndTime && now < data.superBoostEndTime) {
+            const timeLeft = Math.max(data.superBoostEndTime - now, 0);
+            setSuperBoostTimeLeft(timeLeft);
+            setSuperBoostActive(true);
+            setTimeout(() => setSuperBoostActive(false), data.superBoostEndTime - now);
+          }
+
+          const lastLogoutTime = data.lastLogoutTime || 0;
+  
+          if (lastLogoutTime > 0) {
+            const offlineTime = Math.min(now - lastLogoutTime, 60 * 20 * 1000); // Максимум 20 минут
+            let multiplier = data.superBoostEndTime && lastLogoutTime < data.superBoostEndTime ? 2 : 1;
+            const offlineCoins = Math.floor((offlineTime / 1000) * (data.cps || 0) * (data.schoolCoinsMultiplyer || 1) * multiplier);
+
+            if (offlineCoins > 0) {
+              const newCoins = (data.coins || 0) + offlineCoins;
+              if (newCoins !== data.coins) {
+                setCoins(newCoins);
+              }
+            }
+          }
         }
       });
-      console.log("rendered")
+  
+      console.log("rendered");
       return () => unsubscribe();
     }
   }, [userId]);
+  
 
   // Сохранение данных в Firebase каждые 10 секунд
   useEffect(() => {
@@ -96,6 +139,7 @@ const App: React.FC = () => {
         upgrades: upgradesRef.current,
         coinsPerClick: coinsPerClickRef.current,
         clickPowerUpgrades: clickPowerUpgradesRef.current,
+        lastLogoutTime: Date.now(),
       });
     }, 10000);
 
@@ -151,7 +195,7 @@ const App: React.FC = () => {
       const newUpgrades = [...upgrades];
       newUpgrades[index].count++;
       setUpgrades(newUpgrades);
-      setCps((prev) => prev + upgrade.cps);
+      setCps((prev) => Math.round((prev + upgrade.cps) * 10) / 10);
     }
   };
 
@@ -191,23 +235,61 @@ const App: React.FC = () => {
     const rebirthUpgrade = rebirthUpgrades[index];
     const cost = rebirthUpgrade.price;
     if (rebirthCoins >= cost) {
+      const now = Date.now();
+      const duration = 10 * 60 * 1000;
+      const endTime = now + duration;
+
       setRebirthCoins(rebirthCoins - cost);
       if (index === 0) {
         // Энергетический напиток
+        update(userRef.current, {
+          energyDrinkEndTime: endTime,
+        })
         setEnergyDrinkActive(true);
       } else if (index === 1) {
         // Суперускорение
+        update(userRef.current, {
+          superBoostEndTime: endTime,
+        })
         setSuperBoostActive(true);
       } else if (index === 2) {
         // Машина времени
+        console.log(coins)
+        console.log(coins + cps * 600)
         setCoins(coins + cps * 600);
+        update(userRef.current, {
+          coins: coins + cps * 600
+        })
       } else {
         const newRebirthUpgrades = [...rebirthUpgrades];
         newRebirthUpgrades[index].count!++;
         setRebirthUpgrades(newRebirthUpgrades);
+        update(userRef.current, {
+          rebirthUpgrades: newRebirthUpgrades
+        })
       }
+      update(userRef.current, {
+        rebirthCoins: rebirthCoins - cost,
+      })
     }
   }
+
+    // Обновление таймеров каждую секунду
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setEnergyDrinkTimeLeft((prev) => (prev > 0 ? prev - 1000 : 0));
+        setSuperBoostTimeLeft((prev) => (prev > 0 ? prev - 1000 : 0));
+      }, 1000);
+  
+      return () => clearInterval(interval);
+    }, []);
+  
+    // Форматирование времени (в минутах и секундах)
+    const formatTime = (milliseconds: number): string => {
+      const minutes = Math.floor(milliseconds / 60000);
+      const seconds = Math.floor((milliseconds % 60000) / 1000);
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
 
   return (
     <div className='app'>
@@ -217,12 +299,16 @@ const App: React.FC = () => {
             <Clicker
             coins={coins}
             cps={cps}
-              coinsPerClick={coinsPerClick}
-              upgrades={upgrades}
-              clickPowerUpgrades={clickPowerUpgrades}
-              onCoinClick={handleClick}
-              onBuyClickPowerUpgrade={buyClickPowerUpgrade}
-              onPurchaseUpgrade={purchaseUpgrade}
+            coinsPerClick={coinsPerClick}
+            upgrades={upgrades}
+            clickPowerUpgrades={clickPowerUpgrades}
+            onCoinClick={handleClick}
+            onBuyClickPowerUpgrade={buyClickPowerUpgrade}
+            onPurchaseUpgrade={purchaseUpgrade}
+            energyDrinkTimer={formatTime(energyDrinkTimeLeft)}
+            superBoostTimer={formatTime(superBoostTimeLeft)}
+            energyDrinkActive={energyDrinkActive}
+            superBoostActive={superBoostActive}
               />
             )}
           {currentPage === 'move' && <Move userSchoolCoins={coins} userRebirthCoins={rebirthCoins} schoolCoinsMultiplyer={schoolCoinsMultiplyer} rebirthUpgrades={rebirthUpgrades} isEnergyDrinkActive={energyDrinkActive} isSuperBoostActive={superBoostActive} onMove={rebirth} handleBuyItem={purchaseRebirthUpgrade} />}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/Move.scss"; // Убедитесь, что у вас есть файл стилей для этого компонента
+import formatNumber from '../utils/formatNumber';
 
 interface MoveProps {
   userSchoolCoins: number; // количество schoolCoin у пользователя
@@ -17,7 +18,7 @@ const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, schoolCo
   const [isMoving, setIsMoving] = useState(false); // Статус, когда пользователь уже в процессе переезда
   const rebirthsCount = Math.log2(schoolCoinsMultiplyer);
 
-  const rebirthPrice = 1000000 *Math.pow(5, rebirthsCount); // Стоимость переезда в schoolCoin
+  const rebirthPrice = 1000000 * Math.pow(5, rebirthsCount); // Стоимость переезда в schoolCoin
   const rebirthCoinRate = 10000; // Курс обмена schoolCoin на rebirth монеты
 
   // Функция для открытия диалога
@@ -66,7 +67,7 @@ const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, schoolCo
               но ты теряешь все свои накопления и все улучшения.
             </p>
             <p>
-              Стоимость переезда: <strong>{rebirthPrice} School Coin</strong>
+              Стоимость переезда: <strong>{formatNumber(rebirthPrice)} School Coin</strong>
             </p>
             <p>За каждые 10 тысяч School Coins ты получишь 1 rebirth монету</p>
             <button onClick={handleMove} className="move-dialog-button" disabled={userSchoolCoins < rebirthPrice}>
@@ -92,7 +93,12 @@ const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, schoolCo
             <div key={index} className="shop-item">
               <h4>{item.name}</h4>
               <p>{item.description}</p>
-              <p>Цена: {item.price} rebirth монет</p>
+              <p>Цена: {formatNumber(item.price)} rebirth монет</p>
+              <div>
+                {(item.count || item.count === 0) && (
+                    <p>Количество: {item.count}</p>
+                  )}
+              </div>
               <button
                 onClick={() => handleBuyItem(index)}
                 className="shop-buy-button"

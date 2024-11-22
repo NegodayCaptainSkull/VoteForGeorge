@@ -122,28 +122,28 @@
 }
 
 .shop-items {
-  display: flex;
   flex-wrap: wrap;
   gap: 20px;
 }
 
 .shop-item {
   background: rgba(0, 0, 0, 0.4);
-  padding: 15px;
   border-radius: 10px;
-  width: 200px;
+  margin: 10px 0;
+  padding: 20px;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-  text-align: center;
 }
 
 .shop-item h4 {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   color: #00d2d2;
+  text-transform: uppercase;
 }
 
 .shop-item p {
-  font-size: 1rem;
   color: #aaa;
+  font-size: 1.1rem;
+  margin: 5px 0;
 }
 
 .shop-buy-button {

@@ -1,5 +1,6 @@
 import React from 'react';
 import '../styles/Clicker.scss';
+import formatNumber from '../utils/formatNumber';
 
 interface UpgradeInterface {
   name: string;
@@ -39,7 +40,7 @@ const Upgrade: React.FC<UpgradeProps> = ({
           className="upgrade-button"
           disabled={coins < clickPowerUpgrades.cost}
         >
-          Купить улучшение клика (Уровень {clickPowerUpgrades.level}) - Стоимость: {clickPowerUpgrades.cost} монет
+          Купить улучшение клика (Уровень {clickPowerUpgrades.level}) - Стоимость: {formatNumber(clickPowerUpgrades.cost)} монет
         </button>
       </div>
       {upgrades.map((upgrade, index) => {
@@ -47,7 +48,7 @@ const Upgrade: React.FC<UpgradeProps> = ({
         return (
           <div key={index} className="upgrade-item">
             <h3>{upgrade.name}</h3>
-            <p>Стоимость: {cost} монет</p>
+            <p>Стоимость: {formatNumber(cost)} монет</p>
             <p>Монет в секунду: {upgrade.cps}</p>
             <p>Количество: {upgrade.count}</p>
             <button

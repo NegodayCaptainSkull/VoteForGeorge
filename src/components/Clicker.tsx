@@ -12,6 +12,10 @@ interface ClickerProps {
   onCoinClick: () => void;
   onBuyClickPowerUpgrade: () => void;
   onPurchaseUpgrade: (index: number) => void;
+  energyDrinkTimer: string;
+  superBoostTimer: string;
+  energyDrinkActive: boolean;
+  superBoostActive: boolean;
 }
 
 const Clicker: React.FC<ClickerProps> = ({
@@ -23,16 +27,21 @@ const Clicker: React.FC<ClickerProps> = ({
   onCoinClick,
   onBuyClickPowerUpgrade,
   onPurchaseUpgrade,
+  energyDrinkTimer,
+  superBoostTimer,
+  energyDrinkActive,
+  superBoostActive,
 }) => {
   return (
     <div className="clicker-container">
-      <Coin coins={coins} cps={cps} onClick={onCoinClick} />
+      <Coin coins={coins} cps={cps} onClick={onCoinClick} energyDrinkTimer={energyDrinkTimer} superBoostTimer={superBoostTimer} energyDrinkActive={energyDrinkActive} superBoostActive={superBoostActive} />
       <Upgrade
         upgrades={upgrades}
         coins={coins}
         clickPowerUpgrades={clickPowerUpgrades}
         buyClickPowerUpgrade={onBuyClickPowerUpgrade}
         purchaseUpgrade={onPurchaseUpgrade}
+
       />
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../styles/Leaderbord.scss";
 import { ref, onValue } from "firebase/database";
 import { db } from "../firebase";
+import formatNumber from '../utils/formatNumber';
 
 interface User {
   id: string;
@@ -61,14 +62,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ userId }) => {
           }`}>{user.name}</span>
             <span className={`leaderboard-coins ${
             user.id === userId ? "current-user-coins" : ""
-          }`}>{user.coins.toFixed(1)} монет</span>
+          }`}>{formatNumber(user.coins)} монет</span>
           </div>
         ))}
         {currentUser && !users.slice(0, 10).includes(currentUser) && (
           <div className="leaderboard-item current-user">
             <span className="leaderboard-rank current-user-rank">...</span>
             <span className="leaderboard-name current-user-name">{currentUser.name}</span>
-            <span className="leaderboard-coins current-user-coins">{currentUser.coins.toFixed(1)} монет</span>
+            <span className="leaderboard-coins current-user-coins">{formatNumber(currentUser.coins)} монет</span>
           </div>
         )}
       </div>
