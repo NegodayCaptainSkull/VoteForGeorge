@@ -127,23 +127,38 @@ const App: React.FC = () => {
     }
   }, [userId]);
   
+  const saveProgress = () => {
+    update(userRef.current, {
+      name: nameRef.current,
+      username: userNameRef.current,
+      coins: coinsRef.current,
+      cps: cpsRef.current,
+      upgrades: upgradesRef.current,
+      coinsPerClick: coinsPerClickRef.current,
+      clickPowerUpgrades: clickPowerUpgradesRef.current,
+      lastLogoutTime: Date.now(),
+    });
+  }
 
   // Сохранение данных в Firebase каждые 10 секунд
   useEffect(() => {
-    const saveData = setInterval(() => {
-      update(userRef.current, {
-        name: nameRef.current,
-        username: userNameRef.current,
-        coins: coinsRef.current,
-        cps: cpsRef.current,
-        upgrades: upgradesRef.current,
-        coinsPerClick: coinsPerClickRef.current,
-        clickPowerUpgrades: clickPowerUpgradesRef.current,
-        lastLogoutTime: Date.now(),
-      });
+    const saveDataInterval = setInterval(() => {
+      saveProgress()
     }, 10000);
 
-    return () => clearInterval(saveData);
+    return () => clearInterval(saveDataInterval);
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveProgress();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   useEffect(() => {

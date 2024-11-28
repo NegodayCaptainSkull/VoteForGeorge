@@ -19,7 +19,7 @@ const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, schoolCo
   const rebirthsCount = Math.log2(schoolCoinsMultiplyer);
 
   const rebirthPrice = 1000000 * Math.pow(5, rebirthsCount); // Стоимость переезда в schoolCoin
-  const rebirthCoinRate = 10000; // Курс обмена schoolCoin на rebirth монеты
+  const rebirthCoinRate = 10000 * Math.pow(5, rebirthsCount); // Курс обмена schoolCoin на rebirth монеты
 
   // Функция для открытия диалога
   const handleOpenDialog = () => {
@@ -69,7 +69,7 @@ const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, schoolCo
             <p>
               Стоимость переезда: <strong>{formatNumber(rebirthPrice)} School Coin</strong>
             </p>
-            <p>За каждые 10 тысяч School Coins ты получишь 1 rebirth монету</p>
+            <p>За каждые {formatNumber(rebirthCoinRate)} School Coins ты получишь 1 rebirth монету</p>
             <button onClick={handleMove} className="move-dialog-button" disabled={userSchoolCoins < rebirthPrice}>
               Переехать
             </button>
