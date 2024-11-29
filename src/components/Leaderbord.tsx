@@ -17,6 +17,7 @@ interface LeaderboardProps {
 const Leaderboard: React.FC<LeaderboardProps> = ({ userId }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUserIndex, setCurrentUserIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const usersRef = ref(db, "users");
@@ -36,10 +37,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ userId }) => {
 
         setUsers(sortedUsers);
 
-        // Находим текущего пользователя
+        // Находим текущего пользователя и его позицию
         if (userId) {
-          const foundUser = sortedUsers.find((user) => user.id === userId) || null;
-          setCurrentUser(foundUser);
+          const foundUserIndex = sortedUsers.findIndex((user) => user.id === userId);
+          setCurrentUserIndex(foundUserIndex >= 0 ? foundUserIndex + 1 : null); // Индекс начинается с 0, поэтому добавляем 1
+          setCurrentUser(foundUserIndex >= 0 ? sortedUsers[foundUserIndex] : null);
         }
       }
     });
@@ -50,26 +52,46 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ userId }) => {
       <h1>Таблица лидеров</h1>
       <div className="leaderboard-list">
         {users.slice(0, 10).map((user, index) => (
-          <div key={user.id}
-          className={`leaderboard-item ${
-            user.id === userId ? "current-user" : ""
-          }`}>
-            <span className={`leaderboard-rank ${
-            user.id === userId ? "current-user-rank" : ""
-          }`}>{index + 1}</span>
-            <span className={`leaderboard-name ${
-            user.id === userId ? "current-user-name" : ""
-          }`}>{user.name}</span>
-            <span className={`leaderboard-coins ${
-            user.id === userId ? "current-user-coins" : ""
-          }`}>{formatNumber(user.coins)} монет</span>
+          <div
+            key={user.id}
+            className={`leaderboard-item ${
+              user.id === userId ? "current-user" : ""
+            }`}
+          >
+            <span
+              className={`leaderboard-rank ${
+                user.id === userId ? "current-user-rank" : ""
+              }`}
+            >
+              {index + 1}
+            </span>
+            <span
+              className={`leaderboard-name ${
+                user.id === userId ? "current-user-name" : ""
+              }`}
+            >
+              {user.name}
+            </span>
+            <span
+              className={`leaderboard-coins ${
+                user.id === userId ? "current-user-coins" : ""
+              }`}
+            >
+              {formatNumber(user.coins)} монет
+            </span>
           </div>
         ))}
-        {currentUser && !users.slice(0, 10).includes(currentUser) && (
+        {currentUser && currentUserIndex && currentUserIndex > 10 && (
           <div className="leaderboard-item current-user">
-            <span className="leaderboard-rank current-user-rank">...</span>
-            <span className="leaderboard-name current-user-name">{currentUser.name}</span>
-            <span className="leaderboard-coins current-user-coins">{formatNumber(currentUser.coins)} монет</span>
+            <span className="leaderboard-rank current-user-rank">
+              {currentUserIndex}
+            </span>
+            <span className="leaderboard-name current-user-name">
+              {currentUser.name}
+            </span>
+            <span className="leaderboard-coins current-user-coins">
+              {formatNumber(currentUser.coins)} монет
+            </span>
           </div>
         )}
       </div>
