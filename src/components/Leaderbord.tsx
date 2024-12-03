@@ -51,7 +51,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ userId }) => {
     <div className="leaderboard-container">
       <h1>Таблица лидеров</h1>
       <div className="leaderboard-list">
-        {users.slice(0, 10).map((user, index) => (
+        {users.slice(0, 25).map((user, index) => (
           <div
             key={user.id}
             className={`leaderboard-item ${
@@ -81,7 +81,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ userId }) => {
             </span>
           </div>
         ))}
-        {currentUser && currentUserIndex && currentUserIndex > 10 && (
+        {currentUser && currentUserIndex && currentUserIndex > 25 && (
           <div className="leaderboard-item current-user">
             <span className="leaderboard-rank current-user-rank">
               {currentUserIndex}
