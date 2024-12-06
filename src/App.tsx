@@ -215,7 +215,8 @@ const App: React.FC = () => {
   };
 
   const rebirth = (newRebirthCoins: number) => {
-    setRebirthCoins(rebirthCoins + newRebirthCoins);
+    const updatedRebirthCoins = Math.min(rebirthCoins + newRebirthCoins, 5000);
+    setRebirthCoins(updatedRebirthCoins);
     setSchoolCoinsMultiplyer(schoolCoinsMultiplyer * 2);
     setCoins(0);
     setCps(0);
@@ -240,7 +241,7 @@ const App: React.FC = () => {
         cost: 50,
         level: 1
       },
-      rebirthCoins: rebirthCoins + newRebirthCoins,
+      rebirthCoins: updatedRebirthCoins,
       schoolCoinsMultiplyer: schoolCoinsMultiplyer * 2,
     }
     )

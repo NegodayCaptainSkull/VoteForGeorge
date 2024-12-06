@@ -49,7 +49,7 @@ const Move: React.FC<MoveProps> = ({ userSchoolCoins, userRebirthCoins, schoolCo
         <p>Множитель School Coins: {schoolCoinsMultiplyer}</p>
       </div>
       <div className="rebirth-coins">
-        <p>Количество rebirth монет: {userRebirthCoins}</p>
+        <p>Количество rebirth монет: {userRebirthCoins} (Max: 5000)</p>
       </div>
 
       <div className="move-button-container">
