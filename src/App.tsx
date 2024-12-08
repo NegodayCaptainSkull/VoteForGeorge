@@ -156,29 +156,24 @@ const App: React.FC = () => {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        saveProgress();
-      }
-    };
-  
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    const { WebApp } = (window as any).Telegram || {};
-    if (!WebApp) return;
-
-    const handleClose = () => {
-      saveProgress(); 
-    };
-
-    WebApp.onEvent('web_app_close', handleClose);
-
     return () => {
-      WebApp.offEvent('web_app_close', handleClose);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
+
+  useEffect(() => {
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'hidden') {
+      saveProgress();
+    }
+  };
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  return () => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
+}, []);
 
   useEffect(() => {
     if (energyDrinkActive) {
