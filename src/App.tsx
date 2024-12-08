@@ -54,7 +54,6 @@ const App: React.FC = () => {
   // Ссылки на состояния
   const nameRef = useRef(name);
   const userNameRef = useRef(username);
-  const userIdRef = useRef(userId);
   const coinsRef = useRef(coins);
   const cpsRef = useRef(cps);
   const upgradesRef = useRef(upgrades);
@@ -153,27 +152,26 @@ const App: React.FC = () => {
   useEffect(() => {
     const handleBeforeUnload = () => {
       saveProgress();
-
-      const data = {
-        name: nameRef.current,
-        username: userNameRef.current,
-        coins: coinsRef.current,
-        cps: cpsRef.current,
-        upgrades: upgradesRef.current,
-        coinsPerClick: coinsPerClickRef.current,
-        clickPowerUpgrades: clickPowerUpgradesRef.current,
-        lastLogoutTime: Date.now(),
-      };
-  
-      // Отправка данных через sendBeacon
-      const payload = JSON.stringify(data);
-      navigator.sendBeacon(`https://vote-for-george-default-rtdb.firebaseio.com/users/${userIdRef}.json`, payload);
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        saveProgress();
+      }
+    };
+  
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+  
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
