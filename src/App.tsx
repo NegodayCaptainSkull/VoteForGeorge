@@ -156,12 +156,6 @@ const App: React.FC = () => {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
-
-  useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         saveProgress();
@@ -169,10 +163,25 @@ const App: React.FC = () => {
     };
   
     document.addEventListener('visibilitychange', handleVisibilityChange);
-  
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+    const { WebApp } = (window as any).Telegram || {};
+    if (!WebApp) return;
+
+    const handleClose = () => {
+      saveProgress(); 
     };
+
+    WebApp.onEvent('web_app_close', handleClose);
+
+    return () => {
+      WebApp.offEvent('web_app_close', handleClose);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  useEffect(() => {
+    
   }, []);
 
   useEffect(() => {
