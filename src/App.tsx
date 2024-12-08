@@ -181,10 +181,6 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    
-  }, []);
-
-  useEffect(() => {
     if (energyDrinkActive) {
       const timer = setTimeout(() => setEnergyDrinkActive(false), 10 * 60 * 1000); // 10 минут
       return () => clearTimeout(timer); // Очистить таймер при размонтировании
