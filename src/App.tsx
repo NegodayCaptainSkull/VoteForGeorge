@@ -52,9 +52,6 @@ const App: React.FC = () => {
 
   const userRef = useRef(ref(db, `users/${userId}`));
 
-  // Флаг для отслеживания изменений для сохранения
-  const hasChanges = useRef(false);
-
   // Форматирование времени (в минутах и секундах)
   const formatTime = useCallback((milliseconds: number): string => {
     const minutes = Math.floor(milliseconds / 60000);
@@ -81,7 +78,6 @@ const App: React.FC = () => {
         energyDrinkEndTime: energyDrinkActive ? Date.now() + energyDrinkTimeLeft : null,
         superBoostEndTime: superBoostActive ? Date.now() + superBoostTimeLeft : null,
       });
-      hasChanges.current = false;
     } catch (error) {
       console.error("Ошибка при сохранении данных:", error);
       // Здесь можно добавить уведомление пользователю об ошибке сохранения
@@ -154,46 +150,12 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, [userId]);
 
-  // Сохранение данных при изменении состояний
-  useEffect(() => {
-    if (!userId) return;
-
-    if (
-      coins !== 0 ||
-      rebirthCoins !== 0 ||
-      schoolCoinsMultiplyer !== 1 ||
-      cps !== 0 ||
-      coinsPerClick !== 1 ||
-      JSON.stringify(upgrades) !== JSON.stringify(DEFAULT_UPGRADES) ||
-      JSON.stringify(rebirthUpgrades) !== JSON.stringify(DEFAULT_REBIRTH_UPGRADES) ||
-      JSON.stringify(clickPowerUpgrades) !== JSON.stringify({ level: 1, cost: 50 }) ||
-      energyDrinkActive ||
-      superBoostActive
-    ) {
-      hasChanges.current = true;
-    }
-  }, [
-    userId,
-    coins,
-    rebirthCoins,
-    schoolCoinsMultiplyer,
-    cps,
-    coinsPerClick,
-    upgrades,
-    rebirthUpgrades,
-    clickPowerUpgrades,
-    energyDrinkActive,
-    superBoostActive,
-  ]);
-
   // Автосохранение с троттлингом (каждые 10 секунд)
   useEffect(() => {
     if (!userId) return;
 
     const interval = setInterval(() => {
-      if (hasChanges.current) {
-        saveProgress();
-      }
+      saveProgress();
     }, 10000);
 
     return () => clearInterval(interval);
@@ -202,9 +164,7 @@ const App: React.FC = () => {
   // Сохранение при закрытии окна или смене видимости
   useEffect(() => {
     const handleSave = () => {
-      if (hasChanges.current) {
-        saveProgress();
-      }
+      saveProgress();
     };
 
     window.addEventListener('beforeunload', handleSave);
@@ -214,7 +174,17 @@ const App: React.FC = () => {
       }
     });
 
+    const { WebApp } = (window as any).Telegram || {};
+    if (!WebApp) return;
+  
+    const handleClose = () => {
+      saveProgress(); 
+    };
+  
+    WebApp.onEvent('web_app_close', handleClose);
+
     return () => {
+      WebApp.offEvent('web_app_close', handleClose);
       window.removeEventListener('beforeunload', handleSave);
       document.removeEventListener('visibilitychange', handleSave);
     };
@@ -269,7 +239,6 @@ const App: React.FC = () => {
   const handleClick = useCallback(() => {
     const multiplier = energyDrinkActive ? 2 : 1;
     setCoins((prev) => prev + coinsPerClick * schoolCoinsMultiplyer * multiplier);
-    hasChanges.current = true;
   }, [coinsPerClick, schoolCoinsMultiplyer, energyDrinkActive]);
 
   const buyClickPowerUpgrade = useCallback(() => {
@@ -280,7 +249,6 @@ const App: React.FC = () => {
         level: clickPowerUpgrades.level + 1,
         cost: Math.floor(clickPowerUpgrades.cost * 1.5),
       });
-      hasChanges.current = true;
     }
   }, [coins, clickPowerUpgrades]);
 
@@ -295,7 +263,6 @@ const App: React.FC = () => {
         return newUpgrades;
       });
       setCps((prev) => Math.round((prev + upgrade.cps) * 10) / 10);
-      hasChanges.current = true;
     }
   }, [upgrades, coins]);
 
@@ -324,7 +291,6 @@ const App: React.FC = () => {
         rebirthCoins: updatedRebirthCoins,
         schoolCoinsMultiplyer: schoolCoinsMultiplyer * 2,
       });
-      hasChanges.current = false;
     } catch (error) {
       console.error("Ошибка при сбросе (rebirth):", error);
       // Здесь можно добавить уведомление пользователю об ошибке сброса
@@ -378,7 +344,6 @@ const App: React.FC = () => {
         await update(userRef.current, {
           rebirthCoins: rebirthCoins - cost,
         });
-        hasChanges.current = true;
       } catch (error) {
         console.error("Ошибка при покупке rebirth апгрейда:", error);
         // Здесь можно добавить уведомление пользователю об ошибке покупки
