@@ -8,6 +8,7 @@ import NavigationBar from './components/NavigationBar';
 import Move from './components/Move';
 import { onValue, ref, update } from 'firebase/database';
 import { db } from './firebase';
+import formatNumber from './utils/formatNumber';
 
 const App: React.FC = () => {
 
@@ -198,23 +199,33 @@ const App: React.FC = () => {
     // Увеличиваем количество монет
     setCoins((prevCoins) => prevCoins + coinsGained);
   
+    // Ограничение на количество всплывающих текстов
+    const maxFloatingTexts = 5; // Максимум 5 текстов одновременно
+    const existingTexts = document.querySelectorAll('.floating-text');
+    if (existingTexts.length >= maxFloatingTexts) {
+      return; // Не добавляем новый текст, если их уже больше 5
+    }
+  
     // Координаты клика
     const clickX = event.clientX;
     const clickY = event.clientY;
+
+    const coinsGainedText = formatNumber(coinsGained);
   
     // Создаем временный элемент
     const floatingText = document.createElement('span');
-    floatingText.textContent = `+${coinsGained}`;
+    floatingText.textContent = `+${coinsGainedText}`;
     floatingText.style.position = 'absolute';
     floatingText.style.left = `${clickX}px`;
     floatingText.style.top = `${clickY}px`;
     floatingText.style.transform = 'translate(-50%, -50%)';
-    floatingText.style.color = 'gold';
-    floatingText.style.fontSize = '16px';
+    floatingText.style.color = 'rgba(0, 210, 210, 1)';
+    floatingText.style.fontSize = '32px';
     floatingText.style.fontWeight = 'bold';
     floatingText.style.pointerEvents = 'none'; // Элемент не должен блокировать клики
     floatingText.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
     floatingText.style.opacity = '1';
+    floatingText.className = 'floating-text'; // Добавляем класс для удобства поиска
   
     // Добавляем элемент в DOM
     document.body.appendChild(floatingText);
@@ -227,9 +238,12 @@ const App: React.FC = () => {
   
     // Удаление элемента из DOM через 0.5 секунды
     setTimeout(() => {
-      document.body.removeChild(floatingText);
+      if (floatingText.parentNode) {
+        floatingText.parentNode.removeChild(floatingText);
+      }
     }, 500);
   };
+  
 
   const buyClickPowerUpgrade = () => {
     if (coins >= clickPowerUpgrades.cost) {
