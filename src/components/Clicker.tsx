@@ -9,7 +9,7 @@ interface ClickerProps {
   coinsPerClick: number;
   upgrades: any[];
   clickPowerUpgrades: { level: number; cost: number };
-  onCoinClick: () => void;
+  onCoinClick: (event: React.MouseEvent<HTMLDivElement>) => void;
   onBuyClickPowerUpgrade: () => void;
   onPurchaseUpgrade: (index: number) => void;
   energyDrinkTimer: string;

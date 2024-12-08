@@ -5,7 +5,7 @@ import formatNumber from '../utils/formatNumber';
 interface CoinProps {
   coins: number;
   cps: number;
-  onClick: () => void;
+  onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
   energyDrinkTimer: string;
   superBoostTimer: string;
   energyDrinkActive: boolean;

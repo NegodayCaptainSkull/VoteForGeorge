@@ -36,6 +36,11 @@ const App: React.FC = () => {
     { name: 'Директор школы', baseCost: 1400000, costMultiplier: 1.15, cps: 1400, count: 0 },
     { name: 'Руководитель образования', baseCost: 20000000, costMultiplier: 1.15, cps: 7800, count: 0 },
     { name: 'Министр образования', baseCost: 330000000, costMultiplier: 1.15, cps: 44000, count: 0 },
+    { name: 'Образовательная корпорация', baseCost: 5100000000, costMultiplier: 1.15, cps: 240000, count: 0 },
+    { name: 'Международная академия', baseCost: 75000000000, costMultiplier: 1.15, cps: 1300000, count: 0 },
+    { name: 'Университет будущего', baseCost: 1000000000000, costMultiplier: 1.15, cps: 7200000, count: 0 },
+    { name: 'Искусственный интеллект-репетитор', baseCost: 14000000000000, costMultiplier: 1.15, cps: 42000000, count: 0 },
+    { name: 'Мировой совет образования', baseCost: 200000000000000, costMultiplier: 1.15, cps: 240000000, count: 0 }
   ]);
   const [rebirthUpgrades, setRebirthUpgrades] = useState([
     {name: "Энергетический напиток", description: "x2 монет за клик на 10 минут", price: 20},
@@ -186,9 +191,44 @@ const App: React.FC = () => {
   }, [cps, schoolCoinsMultiplyer, superBoostActive]);
 
   // Обработчики
-  const handleClick = () => {
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     const multiplier = energyDrinkActive ? 2 : 1; // Если активен энергетик, умножаем на 2
-    setCoins(coins + coinsPerClick * schoolCoinsMultiplyer * multiplier);
+    const coinsGained = coinsPerClick * schoolCoinsMultiplyer * multiplier;
+  
+    // Увеличиваем количество монет
+    setCoins((prevCoins) => prevCoins + coinsGained);
+  
+    // Координаты клика
+    const clickX = event.clientX;
+    const clickY = event.clientY;
+  
+    // Создаем временный элемент
+    const floatingText = document.createElement('span');
+    floatingText.textContent = `+${coinsGained}`;
+    floatingText.style.position = 'absolute';
+    floatingText.style.left = `${clickX}px`;
+    floatingText.style.top = `${clickY}px`;
+    floatingText.style.transform = 'translate(-50%, -50%)';
+    floatingText.style.color = 'gold';
+    floatingText.style.fontSize = '16px';
+    floatingText.style.fontWeight = 'bold';
+    floatingText.style.pointerEvents = 'none'; // Элемент не должен блокировать клики
+    floatingText.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    floatingText.style.opacity = '1';
+  
+    // Добавляем элемент в DOM
+    document.body.appendChild(floatingText);
+  
+    // Анимация: перемещение вверх и исчезновение
+    setTimeout(() => {
+      floatingText.style.opacity = '0';
+      floatingText.style.transform = 'translate(-50%, -100%)';
+    }, 0);
+  
+    // Удаление элемента из DOM через 0.5 секунды
+    setTimeout(() => {
+      document.body.removeChild(floatingText);
+    }, 500);
   };
 
   const buyClickPowerUpgrade = () => {
