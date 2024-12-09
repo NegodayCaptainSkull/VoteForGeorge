@@ -75,7 +75,7 @@ const App: React.FC = () => {
         const data = snapshot.val();
         if (data) {
           setCoins(data.coins || 0);
-          setRebirthCoins(data.rebirthCoins || 0);
+          setRebirthCoins(Math.min((data.rebirthCoins || 0), 5000));
           setSchoolCoinsMultiplyer(data.schoolCoinsMultiplyer || 1);
           setCps(data.cps || 0);
           setUpgrades(data.upgrades || upgradesRef.current);
