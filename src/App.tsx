@@ -284,11 +284,9 @@ const App: React.FC = () => {
         setSuperBoostActive(true);
       } else if (index === 2) {
         // Машина времени
-        console.log(coins)
-        console.log(coins + cps * 600)
-        setCoins(coins + cps * 600);
+        setCoins(coins + cps * schoolCoinsMultiplyer * 600);
         update(userRef.current, {
-          coins: coins + cps * 600
+          coins: coins + cps * schoolCoinsMultiplyer * 600
         })
       } else {
         const newRebirthUpgrades = [...rebirthUpgrades];
