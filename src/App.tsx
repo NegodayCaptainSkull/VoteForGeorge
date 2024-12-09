@@ -6,9 +6,10 @@ import './styles/App.scss';
 import Leaderboard from './components/Leaderbord';
 import NavigationBar from './components/NavigationBar';
 import Move from './components/Move';
-import { onValue, ref, update } from 'firebase/database';
+import { onValue, ref, update, get } from 'firebase/database';
 import { db } from './firebase';
 import formatNumber from './utils/formatNumber';
+import ReferralSystem from './components/ReferralSystem';
 
 const App: React.FC = () => {
 
@@ -133,8 +134,11 @@ const App: React.FC = () => {
     }
   }, [userId]);
   
-  const saveProgress = () => {
-    update(userRef.current, {
+  const saveProgress = async () => {
+    const currentUserRef = userRef.current;
+
+    // Сохраняем данные текущего пользователя
+    await update(currentUserRef, {
       name: nameRef.current,
       username: userNameRef.current,
       coins: coinsRef.current,
@@ -144,17 +148,40 @@ const App: React.FC = () => {
       clickPowerUpgrades: clickPowerUpgradesRef.current,
       lastLogoutTime: Date.now(),
     });
-  }
+
+    // Получаем referrer (ID того, кто пригласил текущего пользователя)
+    const snapshot = await get(currentUserRef);
+    const userData = snapshot.val();
+    const referrerId = userData?.referrer;
+
+    // Если referrer существует, добавляем 5% монет
+    if (referrerId) {
+      const referrerRef = ref(db, `users/${referrerId}`);
+
+      const referrerSnapshot = await get(referrerRef);
+      if (referrerSnapshot.exists()) {
+        const referrerData = referrerSnapshot.val();
+        const referrerCoins = referrerData.coins || 0;
+
+        // Рассчитываем и добавляем 5% монет
+        const bonus = Math.floor(coinsRef.current * 0.05); // Округляем до целого числа
+        await update(referrerRef, {
+          coins: referrerCoins + bonus,
+        });
+      }
+    }
+  };
 
   // Сохранение данных в Firebase каждые 10 секунд
   useEffect(() => {
     const saveDataInterval = setInterval(() => {
-      saveProgress()
+      saveProgress();
     }, 10000);
 
     return () => clearInterval(saveDataInterval);
   }, []);
 
+  // Сохранение данных перед закрытием страницы
   useEffect(() => {
     const handleBeforeUnload = () => {
       saveProgress();
@@ -200,7 +227,7 @@ const App: React.FC = () => {
     setCoins((prevCoins) => prevCoins + coinsGained);
   
     // Ограничение на количество всплывающих текстов
-    const maxFloatingTexts = 5; // Максимум 5 текстов одновременно
+    const maxFloatingTexts = 3; // Максимум 5 текстов одновременно
     const existingTexts = document.querySelectorAll('.floating-text');
     if (existingTexts.length >= maxFloatingTexts) {
       return; // Не добавляем новый текст, если их уже больше 5
@@ -383,6 +410,7 @@ const App: React.FC = () => {
             )}
           {currentPage === 'move' && <Move userSchoolCoins={coins} userRebirthCoins={rebirthCoins} schoolCoinsMultiplyer={schoolCoinsMultiplyer} rebirthUpgrades={rebirthUpgrades} isEnergyDrinkActive={energyDrinkActive} isSuperBoostActive={superBoostActive} onMove={rebirth} handleBuyItem={purchaseRebirthUpgrade} />}
           {currentPage === 'leaderboard' && <Leaderboard userId={userId} />}
+          {currentPage === 'referral' && <ReferralSystem userId={userId} />}
         </div>
       {/* Здесь добавьте другие страницы */}
       <NavigationBar currentPage={currentPage} setPage={setCurrentPage} />

@@ -27,6 +27,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ currentPage, setPage }) =
       >
         Лидеры
       </button>
+      <button
+        className={`nav-button ${currentPage === 'referral' ? 'active' : ''}`}
+        onClick={() => setPage('referral')}
+      >
+        Реферальная система
+      </button>
     </div>
   );
 };
