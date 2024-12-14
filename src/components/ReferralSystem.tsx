@@ -73,7 +73,6 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ userId }) => {
           <button onClick={handleCopyLink} className="copy-link-button">
             Скопировать реферальную ссылку
           </button>
-          <p className="referral-description">Ваша реферальная ссылка: {referralLink}</p>
     
           <h3>Приглашённые пользователи</h3>
           {referrals.length > 0 ? (

@@ -144,9 +144,6 @@ const App: React.FC = () => {
   let lastSavedCoins: number | null = null; // Инициализация переменной для отслеживания изменений в монетах
 
   const saveProgress = useCallback(async () => {
-    // Если данные еще загружаются, сохранение не выполняется
-    if (isLoading) return;
-  
     const currentUserRef = userRef.current;
   
     // Сохраняем данные текущего пользователя
@@ -180,9 +177,9 @@ const App: React.FC = () => {
   
     // Если referrer существует и пользователь заработал монеты за последние 10 секунд, добавляем 5% от них
     if (referrerId && coinsGained > 0) {
-      referralCoinsFarm(referrerId, coinsGained);
+      referralCoinsFarm(referrerId, coinsGained)
     }
-  }, [isLoading]);
+  }, []);
 
   const referralCoinsFarm = async (referrerId: any, coinsGained: number) => {
     const referrerRef = ref(db, `users/${referrerId}`);
@@ -209,33 +206,28 @@ const App: React.FC = () => {
         });
       }
   }
-  
+
   // Сохранение данных в Firebase каждые 10 секунд
   useEffect(() => {
     const saveDataInterval = setInterval(() => {
-      if (!isLoading) {
-        saveProgress();
-      }
+      saveProgress();
     }, 10000);
-  
+
     return () => clearInterval(saveDataInterval);
-  }, [saveProgress, isLoading]);
-  
+  }, [saveProgress]);
+
   // Сохранение данных перед закрытием страницы
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (!isLoading) {
-        saveProgress();
-      }
+      saveProgress();
     };
-  
+
     window.addEventListener('beforeunload', handleBeforeUnload);
-  
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [saveProgress, isLoading]);
-  
+  }, [saveProgress]);
 
   useEffect(() => {
     if (energyDrinkActive) {
