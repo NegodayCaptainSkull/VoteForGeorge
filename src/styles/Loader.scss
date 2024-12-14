@@ -1,0 +1,31 @@
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw; /* Занимает всю ширину экрана */
+    height: 100vh; /* Занимает всю высоту экрана */
+    background: linear-gradient(45deg, #121212, #333); /* Фон для контекста (опционально) */
+    position: fixed; /* Фиксированная позиция */
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Поверх всех элементов */
+  }
+  
+  .loader {
+    display: flex;
+    width: 50px;
+    aspect-ratio: 1; /* Обеспечивает квадратную форму */
+    border-radius: 50%;
+    background: #00d2d2;
+    -webkit-mask: radial-gradient(circle closest-side at 50% 40%, #0000 94%, #000);
+    mask: radial-gradient(circle closest-side at 50% 40%, #0000 94%, #000);
+    transform-origin: 50% 40%;
+    animation: l25 1s infinite linear;
+  }
+  
+  
+  @keyframes l25 {
+    100% {
+      transform: rotate(1turn);
+    }
+  }

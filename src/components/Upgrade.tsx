@@ -49,7 +49,7 @@ const Upgrade: React.FC<UpgradeProps> = ({
           <div key={index} className="upgrade-item">
             <h3>{upgrade.name}</h3>
             <p>Стоимость: {formatNumber(cost)} монет</p>
-            <p>Монет в секунду: {upgrade.cps}</p>
+            <p>Монет в секунду: {formatNumber(upgrade.cps)}</p>
             <p>Количество: {upgrade.count}</p>
             <button
               onClick={() => purchaseUpgrade(index)}
