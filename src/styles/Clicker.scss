@@ -40,6 +40,26 @@ h1 {
   transition: transform 0.2s ease;
 }
 
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(255, 223, 0, 0.5);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(255, 223, 0, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(255, 223, 0, 0.5);
+  }
+}
+
+.coin.pulsing {
+  animation: pulse 1.5s infinite; // Анимация пульсации
+}
+
+
 .coins,
 .cps,
 .warning,

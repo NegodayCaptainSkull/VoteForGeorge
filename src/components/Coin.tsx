@@ -5,7 +5,7 @@ import formatNumber from '../utils/formatNumber';
 interface CoinProps {
   coins: number;
   cps: number;
-  onClick: () => void;
+  onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
   energyDrinkTimer: string;
   superBoostTimer: string;
   energyDrinkActive: boolean;
@@ -32,12 +32,12 @@ const Coin: React.FC<CoinProps> = ({ coins, cps, onClick, energyDrinkTimer, supe
         )}
       </div>
       <div
-        className="coin"
+        className={`coin ${cps > 0 ? 'pulsing' : ''}`} // Добавление класса pulsing, если cps > 0
         onClick={onClick}
         onMouseDown={(e) => e.preventDefault()} // Предотвращение выделения текста
         onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
         onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-      ></div>
+      />
     </div>
   );
 };

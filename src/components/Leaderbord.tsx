@@ -3,6 +3,7 @@ import "../styles/Leaderbord.scss";
 import { ref, onValue } from "firebase/database";
 import { db } from "../firebase";
 import formatNumber from '../utils/formatNumber';
+import Loader from "./Loader";
 
 interface User {
   id: string;
@@ -18,6 +19,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ userId }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentUserIndex, setCurrentUserIndex] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // Добавлено состояние для загрузки
 
   useEffect(() => {
     const usersRef = ref(db, "users");
@@ -43,58 +45,66 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ userId }) => {
           setCurrentUserIndex(foundUserIndex >= 0 ? foundUserIndex + 1 : null); // Индекс начинается с 0, поэтому добавляем 1
           setCurrentUser(foundUserIndex >= 0 ? sortedUsers[foundUserIndex] : null);
         }
+        setIsLoading(false); // Данные загружены
       }
     });
   }, [userId]);
 
   return (
     <div className="leaderboard-container">
-      <h1>Таблица лидеров</h1>
-      <div className="leaderboard-list">
-        {users.slice(0, 25).map((user, index) => (
-          <div
-            key={user.id}
-            className={`leaderboard-item ${
-              user.id === userId ? "current-user" : ""
-            }`}
-          >
-            <span
-              className={`leaderboard-rank ${
-                user.id === userId ? "current-user-rank" : ""
-              }`}
-            >
-              {index + 1}
-            </span>
-            <span
-              className={`leaderboard-name ${
-                user.id === userId ? "current-user-name" : ""
-              }`}
-            >
-              {user.name}
-            </span>
-            <span
-              className={`leaderboard-coins ${
-                user.id === userId ? "current-user-coins" : ""
-              }`}
-            >
-              {formatNumber(user.coins)} монет
-            </span>
+      {isLoading ? (
+        <Loader></Loader>
+      ) : (
+        <>
+        
+          <h1>Таблица лидеров</h1>
+          <div className="leaderboard-list">
+            {users.slice(0, 25).map((user, index) => (
+              <div
+                key={user.id}
+                className={`leaderboard-item ${
+                  user.id === userId ? "current-user" : ""
+                }`}
+              >
+                <span
+                  className={`leaderboard-rank ${
+                    user.id === userId ? "current-user-rank" : ""
+                  }`}
+                >
+                  {index + 1}
+                </span>
+                <span
+                  className={`leaderboard-name ${
+                    user.id === userId ? "current-user-name" : ""
+                  }`}
+                >
+                  {user.name}
+                </span>
+                <span
+                  className={`leaderboard-coins ${
+                    user.id === userId ? "current-user-coins" : ""
+                  }`}
+                >
+                  {formatNumber(user.coins)} монет
+                </span>
+              </div>
+            ))}
+            {currentUser && currentUserIndex && currentUserIndex > 25 && (
+              <div className="leaderboard-item current-user">
+                <span className="leaderboard-rank current-user-rank">
+                  {currentUserIndex}
+                </span>
+                <span className="leaderboard-name current-user-name">
+                  {currentUser.name}
+                </span>
+                <span className="leaderboard-coins current-user-coins">
+                  {formatNumber(currentUser.coins)} монет
+                </span>
+              </div>
+            )}
           </div>
-        ))}
-        {currentUser && currentUserIndex && currentUserIndex > 25 && (
-          <div className="leaderboard-item current-user">
-            <span className="leaderboard-rank current-user-rank">
-              {currentUserIndex}
-            </span>
-            <span className="leaderboard-name current-user-name">
-              {currentUser.name}
-            </span>
-            <span className="leaderboard-coins current-user-coins">
-              {formatNumber(currentUser.coins)} монет
-            </span>
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };

@@ -1,0 +1,114 @@
+.referral-system-container {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  text-align: left;
+  min-height: calc(100vh - 40px); /* Высота окна браузера с учётом возможных отступов */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+h2 {
+  font-size: 2rem;
+  color: #00d2d2;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.referral-description {
+  font-size: 1rem;
+  color: #aaa;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.copy-link-button {
+  display: block;
+  margin: 0 auto;
+  background: #00d2d2;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.copy-link-button:hover {
+  background: #00a7a7;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.referral-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  flex-grow: 1; /* Заставляет список растягиваться по высоте оставшегося пространства */
+}
+
+.referral-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 15px 20px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.referral-user-id {
+  flex: 1;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.referral-coins {
+  font-size: 1.2rem;
+  color: #aaa;
+  text-align: right;
+}
+
+.navigation-bar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  color: #aaa;
+  font-size: 1.5rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nav-button.active {
+  color: #00d2d2; /* Цвет активной кнопки */
+  transform: scale(1.2); /* Увеличение активной кнопки */
+}
+
+.nav-button:hover {
+  color: #fff;
+}
+
+.nav-button:focus {
+  outline: none;
+}
