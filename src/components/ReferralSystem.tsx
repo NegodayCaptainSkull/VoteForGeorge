@@ -47,8 +47,8 @@ const ReferralSystem: React.FC<ReferralSystemProps> = ({ userId }) => {
         );
 
         setReferrals(updatedReferrals);
-        setIsLoading(false); // Данные загружены
       }
+      setIsLoading(false); // Данные загружены
     };
 
     fetchReferrals();
