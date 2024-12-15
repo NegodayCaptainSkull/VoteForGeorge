@@ -90,7 +90,22 @@ const App: React.FC = () => {
           setRebirthCoins(data.rebirthCoins || 0);
           setSchoolCoinsMultiplyer(data.schoolCoinsMultiplyer || 1);
           setCps(data.cps || 0);
-          setUpgrades(data.upgrades || []);
+          const mergedUpgrades = mergeUpgrades(data.upgrades || [
+            { name: 'Учебник', baseCost: 15, costMultiplier: 1.15, cps: 0.1, count: 0 },
+            { name: 'Учитель', baseCost: 100, costMultiplier: 1.15, cps: 1, count: 0 },
+            { name: 'Класс', baseCost: 1100, costMultiplier: 1.15, cps: 8, count: 0 },
+            { name: 'Студент-ассистент', baseCost: 12000, costMultiplier: 1.15, cps: 47, count: 0 },
+            { name: 'Школьный комитет', baseCost: 130000, costMultiplier: 1.15, cps: 260, count: 0 },
+            { name: 'Директор школы', baseCost: 1400000, costMultiplier: 1.15, cps: 1400, count: 0 },
+            { name: 'Руководитель образования', baseCost: 20000000, costMultiplier: 1.15, cps: 7800, count: 0 },
+            { name: 'Министр образования', baseCost: 330000000, costMultiplier: 1.15, cps: 44000, count: 0 },
+            { name: 'Образовательная корпорация', baseCost: 5100000000, costMultiplier: 1.15, cps: 240000, count: 0 },
+            { name: 'Международная академия', baseCost: 75000000000, costMultiplier: 1.15, cps: 1300000, count: 0 },
+            { name: 'Университет будущего', baseCost: 1000000000000, costMultiplier: 1.15, cps: 7200000, count: 0 },
+            { name: 'Искусственный интеллект-репетитор', baseCost: 14000000000000, costMultiplier: 1.15, cps: 42000000, count: 0 },
+            { name: 'Мировой совет образования', baseCost: 200000000000000, costMultiplier: 1.15, cps: 240000000, count: 0 }
+          ]);
+          setUpgrades(mergedUpgrades);
           setCoinsPerClick(data.coinsPerClick || 1);
           setClickPowerUpgrades(data.clickPowerUpgrades || { level: 1, cost: 50 });
           setRebirthUpgrades(
@@ -140,6 +155,36 @@ const App: React.FC = () => {
       return () => unsubscribe();
     }
   }, [userId]);
+
+  const mergeUpgrades = (loadedUpgrades: any[]) => {
+    const defaultUpgrades = [
+      { name: 'Учебник', baseCost: 15, costMultiplier: 1.15, cps: 0.1, count: 0 },
+      { name: 'Учитель', baseCost: 100, costMultiplier: 1.15, cps: 1, count: 0 },
+      { name: 'Класс', baseCost: 1100, costMultiplier: 1.15, cps: 8, count: 0 },
+      { name: 'Студент-ассистент', baseCost: 12000, costMultiplier: 1.15, cps: 47, count: 0 },
+      { name: 'Школьный комитет', baseCost: 130000, costMultiplier: 1.15, cps: 260, count: 0 },
+      { name: 'Директор школы', baseCost: 1400000, costMultiplier: 1.15, cps: 1400, count: 0 },
+      { name: 'Руководитель образования', baseCost: 20000000, costMultiplier: 1.15, cps: 7800, count: 0 },
+      { name: 'Министр образования', baseCost: 330000000, costMultiplier: 1.15, cps: 44000, count: 0 },
+      { name: 'Образовательная корпорация', baseCost: 5100000000, costMultiplier: 1.15, cps: 240000, count: 0 },
+      { name: 'Международная академия', baseCost: 75000000000, costMultiplier: 1.15, cps: 1300000, count: 0 },
+      { name: 'Университет будущего', baseCost: 1000000000000, costMultiplier: 1.15, cps: 7200000, count: 0 },
+      { name: 'Искусственный интеллект-репетитор', baseCost: 14000000000000, costMultiplier: 1.15, cps: 42000000, count: 0 },
+      { name: 'Мировой совет образования', baseCost: 200000000000000, costMultiplier: 1.15, cps: 240000000, count: 0 },
+    ];
+  
+    const mergedUpgrades = [...loadedUpgrades]; // Копируем загруженные улучшения
+  
+    defaultUpgrades.forEach((defaultUpgrade) => {
+      // Проверяем, есть ли улучшение в загруженных данных
+      const exists = mergedUpgrades.some((upgrade) => upgrade.name === defaultUpgrade.name);
+      if (!exists) {
+        mergedUpgrades.push(defaultUpgrade); // Добавляем недостающее улучшение
+      }
+    });
+  
+    return mergedUpgrades;
+  };
 
   let lastSavedCoins: number | null = null; // Инициализация переменной для отслеживания изменений в монетах
 
